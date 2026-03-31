@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: github-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: github-runner
+  template:
+    metadata:
+      labels:
+        app: github-runner
+    spec:
+      containers:
+      - name: runner
+        image: your-dockerhub-username/github-runner:latest
+        env:
+        - name: REPO_URL
+          value: https://github.com/your-org/your-repo
+        - name: RUNNER_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-runner-secret
+              key: RUNNER_TOKEN
+
+
