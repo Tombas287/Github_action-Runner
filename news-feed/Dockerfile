@@ -1,44 +1,31 @@
-name: CI - Build, Scan, Push (Podman)
+# Stage 1: Build the application
+FROM maven:3.9.2-eclipse-temurin-17 AS build
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
+# Set working directory
+WORKDIR /app
 
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: yourdockerhubusername/news-feed:latest
+# Copy Maven configuration
+COPY news-feed/pom.xml .
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+# Download dependencies (cached layer)
+RUN mvn dependency:go-offline -B
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+# Copy the source code
+COPY news-feed/src ./src
 
-    - name: Build Maven project
-      run: mvn clean package -DskipTests
+# Package the application as a jar
+RUN mvn clean package -DskipTests
 
-    - name: Install Podman
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y podman
+# Stage 2: Run the application
+FROM eclipse-temurin:17-jdk-alpine
 
-    - name: Log in to Docker Hub with Podman
-      run: |
-        echo "${{ secrets.DOCKER_PASSWORD }}" | podman login docker.io \
-          --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+WORKDIR /app
 
-    - name: Build Docker image with Podman
-      run: podman build -t $IMAGE_NAME .
+# Copy the jar from the build stage
+COPY --from=build /app/target/*.jar app.jar
 
-    - name: Scan image with Trivy
-      run: trivy image --exit-code 1 $IMAGE_NAME
+# Expose Spring Boot default port
+EXPOSE 8080
 
-    - name: Push image to Docker Hub
-      run: podman push $IMAGE_NAME
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
