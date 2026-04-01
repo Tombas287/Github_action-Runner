@@ -25,7 +25,9 @@ jobs:
         distribution: 'temurin'
 
     - name: Build Maven project
-      run: mvn clean package -DskipTests
+      run: |
+        cd news-feed
+        mvn clean package -DskipTests
 
     - name: Log in to Docker Hub with Podman
       run: |
