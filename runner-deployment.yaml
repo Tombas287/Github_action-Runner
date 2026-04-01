@@ -1,27 +1,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: github-runner
+  name: github-runner3
 spec:
-  replicas: 1
+  
+  replicas: 3   # 👈 increase replicas
+  strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1   # at most 1 pod unavailable during update
+        maxSurge: 1
   selector:
     matchLabels:
-      app: github-runner
+      app: github-runner3
+      
   template:
     metadata:
       labels:
-        app: github-runner
+        app: github-runner3
     spec:
+      
       containers:
       - name: runner
-        image: your-dockerhub-username/github-runner:latest
+        image: 7002370412/githubrunner:v1
         env:
         - name: REPO_URL
-          value: https://github.com/your-org/your-repo
+          value: https://github.com/Tombas287/Github_action-Runner
+
         - name: RUNNER_TOKEN
           valueFrom:
             secretKeyRef:
               name: github-runner-secret
               key: RUNNER_TOKEN
 
-
+        # ✅ CRITICAL: unique name per pod
+        - name: RUNNER_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
