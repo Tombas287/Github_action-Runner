@@ -5,7 +5,7 @@ on:
     
 jobs:
   build-and-push:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     env:
       DOCKER_IMAGE: 7002370412/news-feed:latest
 
