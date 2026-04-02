@@ -42,7 +42,7 @@ jobs:
     - name: Scan image with Trivy
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: $DOCKER_IMAGE
+        image-ref: ${{ env.DOCKER_IMAGE }}
         format: table
         exit-code: 0 # fail workflow if vulnerabilities found
 
