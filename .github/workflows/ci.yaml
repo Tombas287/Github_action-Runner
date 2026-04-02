@@ -5,6 +5,7 @@ on:
 permissions:
   issues: write
   contents: read
+  pull-requests: write
     
 jobs:
   build-and-push:
@@ -62,8 +63,17 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         google_api_key: ${{ secrets.GOOGLE_API_KEY }}
         report_path: trivy-report.json
+        
+    - name: Setup GitHub CLI
+      run: |
+          sudo apt-get update
+          sudo apt-get install gh -y
 
+    - name: Authenticate gh
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+    - name: Run script
+      run: python script.py
           
-
-    - name: Push Docker image
-      run: docker push $DOCKER_IMAGE
+    # - name: Push Docker image
+    #   run: docker push $DOCKER_IMAGE
