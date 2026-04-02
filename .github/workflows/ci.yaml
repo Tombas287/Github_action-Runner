@@ -37,8 +37,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Build Docker image
       run: |
-        cd news-feed
-        docker build -t $DOCKER_IMAGE .
+        docker build  -f Dockerfile1 -t $DOCKER_IMAGE .
 
     - name: Scan image with Trivy
       uses: aquasecurity/trivy-action@master
