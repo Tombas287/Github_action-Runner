@@ -1,0 +1,21 @@
+<settings>
+
+  <!-- 👇 Use Nexus for ALL dependencies -->
+  <mirrors>
+    <mirror>
+      <id>nexus</id>
+      <mirrorOf>*</mirrorOf>
+      <url>http://<your-ip>:8081/repository/maven-central/</url>
+    </mirror>
+  </mirrors>
+
+  <!-- 👇 Credentials for deploy -->
+  <servers>
+    <server>
+      <id>nexus</id>
+      <username>admin</username>
+      <password>YOUR_PASSWORD</password>
+    </server>
+  </servers>
+
+</settings>
