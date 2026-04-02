@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 permissions:
   issues: write
-  contents: read
+  contents: write
   pull-requests: write
     
 jobs:
@@ -74,6 +74,8 @@ jobs:
 
     - name: Run script
       run: python script.py
+      env:
+        GITHUB_WORKSPACE: ${{ github.workspace }}
           
     # - name: Push Docker image
     #   run: docker push $DOCKER_IMAGE
