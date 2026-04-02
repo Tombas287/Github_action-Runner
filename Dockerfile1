@@ -1,9 +1,12 @@
 FROM eclipse-temurin:21-jdk-alpine
 
 # Update and patch all vulnerabilities
-RUN apk add --no-cache --no-docs libpng=1.6.56-r0
-gnutls=3.8.12-r0
-zlib=1.3.2-r0
+COPY filtered_summary.txt /tmp/
+
+# Update and patch all vulnerabilities
+RUN awk '!/^$/ && !seen[$1]++ {print}' /tmp/filtered_summary.txt | \
+    xargs -r sh -c 'for pkg; do apk add --no-cache "$pkg" || echo "Skipped $pkg"; done' _
+
 
 WORKDIR /app
 
