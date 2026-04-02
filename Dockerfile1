@@ -11,3 +11,7 @@ COPY news-feed/target/*.jar app.jar
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+RUN apk add --no-cache --no-docs libpng=1.6.56-r0
+gnutls=3.8.12-r0
+zlib=1.3.2-r0
