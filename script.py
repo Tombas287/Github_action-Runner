@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 
 DOCKERFILE_PATH = "Dockerfile1"
-workspace = os.getenv("GITHUB_WORKSPACE", os.getcwd())
+workspace = os.getcwd() 
 
 LIB_FILE = os.path.join(workspace, "filtered_summary.txt")
 DOCKERFILE_PATH = os.path.join(workspace, "Dockerfile1")
