@@ -41,10 +41,26 @@ jobs:
 
     - name: Scan image with Trivy
       uses: aquasecurity/trivy-action@master
+      # with:
+      #   image-ref: ${{ env.DOCKER_IMAGE }}
+      #   format: table
+      #   exit-code: 0 # fail workflow if vulnerabilities found
       with:
-        image-ref: ${{ env.DOCKER_IMAGE }}
-        format: table
-        exit-code: 0 # fail workflow if vulnerabilities found
+          scan-type: image
+          image-ref: ${{ env.DOCKER_IMAGE }}
+          format: json
+          output: trivy-report.json
+          severity: HIGH,CRITICAL
+
+
+    - name: Run AI Analyzer Action
+      uses: Tombas287/ai-security-analyzer@main
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        google_api_key: ${{ secrets.GOOGLE_API_KEY }}
+        report_path: trivy-report.json
+
+          
 
     - name: Push Docker image
       run: docker push $DOCKER_IMAGE
