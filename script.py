@@ -3,9 +3,8 @@ from datetime import datetime
 import os
 import sys
 
-# CONFIG
-BASE_BRANCH = "main"
-workspace = os.getenv("GITHUB_WORKSPACE", os.getcwd())
+DOCKERFILE_PATH = "Dockerfile1"
+workspace = os.getcwd() 
 
 LIB_FILE = os.path.join(workspace, "filtered_summary.txt")
 date_str = datetime.now().strftime("%Y%m%d")
