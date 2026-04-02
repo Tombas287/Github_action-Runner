@@ -7,14 +7,11 @@ WORKDIR /app
 # Copy Maven configuration
 COPY news-feed/pom.xml .
 
-# Download dependencies (cached layer)
-RUN mvn dependency:go-offline -B
-
 # Copy the source code
 COPY news-feed/src ./src
 
 # Package the application as a jar
-RUN mvn clean package -DskipTests
+# RUN mvn clean package -DskipTests
 
 # Stage 2: Run the application
 FROM eclipse-temurin:17-jdk-alpine
