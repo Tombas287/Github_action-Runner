@@ -2,6 +2,9 @@ name: CI - Build, Scan, Push
 
 on:
   workflow_dispatch:
+permissions:
+  issues: write
+  contents: read
     
 jobs:
   build-and-push:
