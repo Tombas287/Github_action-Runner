@@ -1,7 +1,11 @@
 FROM eclipse-temurin:21-jdk-alpine
 
 # Update and patch all vulnerabilities
+COPY filtered_summary.txt /tmp/
 
+# Update and patch all vulnerabilities
+RUN awk '!/^$/ && !seen[$1]++ {print}' /tmp/filtered_summary.txt | \
+    xargs -r sh -c 'for pkg; do apk add --no-cache "$pkg" || echo "Skipped $pkg"; done' _
 
 WORKDIR /app
 
