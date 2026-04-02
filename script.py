@@ -8,7 +8,7 @@ BASE_BRANCH = "main"
 workspace = os.getenv("GITHUB_WORKSPACE", os.getcwd())
 
 LIB_FILE = os.path.join(workspace, "filtered_summary.txt")
-DOCKERFILE_PATH = os.path.join(workspace, "Dockerfile1")
+# DOCKERFILE_PATH = os.path.join(workspace, "Dockerfile1")
 
 date_str = datetime.now().strftime("%Y%m%d")
 new_branch = f"feature/securityupdate-{date_str}"
@@ -21,7 +21,7 @@ def run(cmd, capture=False):
 
 print(f"Workspace: {workspace}")
 print(f"Lib file: {LIB_FILE}")
-print(f"Dockerfile: {DOCKERFILE_PATH}")
+# print(f"Dockerfile: {DOCKERFILE_PATH}")
 
 # ✅ Git config
 run('git config user.name "github-actions[bot]"')
@@ -62,27 +62,27 @@ if not libs:
 libs = libs.replace("==", "=")
 
 # ✅ Step 2: Update Dockerfile (avoid duplicates)
-install_command = f"RUN apk add --no-cache --no-docs {libs}"
+# install_command = f"RUN apk add --no-cache --no-docs {libs}"
 
-if not os.path.exists(DOCKERFILE_PATH):
-    print("❌ Dockerfile not found.")
-    sys.exit(1)
+# if not os.path.exists(DOCKERFILE_PATH):
+#     print("❌ Dockerfile not found.")
+#     sys.exit(1)
 
-with open(DOCKERFILE_PATH, "r") as f:
-    content = f.read()
+# with open(DOCKERFILE_PATH, "r") as f:
+#     content = f.read()
 
-if install_command in content:
-    print("✅ Dockerfile already updated. Skipping PR.")
-    sys.exit(0)
+# if install_command in content:
+#     print("✅ Dockerfile already updated. Skipping PR.")
+#     sys.exit(0)
 
 # Append
-with open(DOCKERFILE_PATH, "a") as f:
-    f.write("\n" + install_command + "\n")
+# with open(DOCKERFILE_PATH, "a") as f:
+#     f.write("\n" + install_command + "\n")
 
-print("✅ Dockerfile updated.")
+# print("✅ Dockerfile updated.")
 
 # ✅ Step 3: Commit
-run(f"git add {DOCKERFILE_PATH}")
+# run(f"git add {DOCKERFILE_PATH}")
 
 diff_cached = subprocess.run("git diff --cached --quiet", shell=True)
 if diff_cached.returncode == 0:

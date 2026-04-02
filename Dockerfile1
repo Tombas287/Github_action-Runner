@@ -7,7 +7,6 @@ COPY filtered_summary.txt /tmp/
 RUN awk '!/^$/ && !seen[$1]++ {print}' /tmp/filtered_summary.txt | \
     xargs -r sh -c 'for pkg; do apk add --no-cache "$pkg" || echo "Skipped $pkg"; done' _
 
-
 WORKDIR /app
 
 # Copy pre-built JAR
