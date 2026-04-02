@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Latest News</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ── CSS VARIABLES ── */
+        :root {
+            --bg:         #080c14;
+            --surface:    rgba(255,255,255,0.04);
+            --border:     rgba(255,255,255,0.08);
+            --text:       #e8eaf0;
+            --muted:      #7a8099;
+            --accent-tech:    #38bdf8;
+            --accent-sports:  #4ade80;
+            --accent-biz:     #f59e0b;
+            --accent-econ:    #a78bfa;
+            --accent-war:     #f87171;
+            --glow-tech:   rgba(56,189,248,0.18);
+            --glow-sports: rgba(74,222,128,0.18);
+            --glow-biz:    rgba(245,158,11,0.18);
+            --glow-econ:   rgba(167,139,250,0.18);
+            --glow-war:    rgba(248,113,113,0.18);
+            --radius:      16px;
+            --img-h:       200px;
+        }
+
+        /* ── BODY ── */
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── ANIMATED MESH BACKGROUND ── */
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-canvas::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 20%, rgba(56,189,248,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 70% 50% at 80% 10%, rgba(167,139,250,0.10) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 80% at 60% 80%, rgba(245,158,11,0.08) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 60% at 10% 80%, rgba(74,222,128,0.08) 0%, transparent 50%);
+            animation: meshShift 18s ease-in-out infinite alternate;
+        }
+
+        .bg-canvas::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px),
+                repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px);
+        }
+
+        @keyframes meshShift {
+            0%   { transform: translate(0,0) scale(1); }
+            33%  { transform: translate(3%,2%) scale(1.04); }
+            66%  { transform: translate(-2%,4%) scale(0.97); }
+            100% { transform: translate(4%,-2%) scale(1.03); }
+        }
+
+        /* floating orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat linear infinite;
+        }
+        .orb-1 { width:520px; height:520px; background:#38bdf8; top:-120px; left:-80px;  animation-duration:28s; }
+        .orb-2 { width:400px; height:400px; background:#a78bfa; top:40%;  right:-100px; animation-duration:22s; animation-delay:-8s; }
+        .orb-3 { width:360px; height:360px; background:#f59e0b; bottom:-80px; left:30%; animation-duration:32s; animation-delay:-14s; }
+
+        @keyframes orbFloat {
+            0%,100% { transform: translateY(0px) rotate(0deg); }
+            25%      { transform: translateY(-30px) rotate(3deg); }
+            50%      { transform: translateY(-15px) rotate(-2deg); }
+            75%      { transform: translateY(-40px) rotate(1deg); }
+        }
+
+        /* ── LAYOUT WRAPPER ── */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .site-header .eyebrow {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 4px 14px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(8px);
+        }
+
+        .site-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.5) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .site-header .subtitle {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 0.95rem;
+            font-weight: 300;
+        }
+
+        .header-rule {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #38bdf8, #a78bfa);
+            border-radius: 4px;
+            margin: 18px auto 0;
+        }
+
+        /* ── SECTION ── */
+        .news-section {
+            margin-bottom: 64px;
+            opacity: 0;
+            transform: translateY(28px);
+            animation: sectionReveal 0.65s ease forwards;
+        }
+        .news-section:nth-child(1) { animation-delay: 0.1s; }
+        .news-section:nth-child(2) { animation-delay: 0.22s; }
+        .news-section:nth-child(3) { animation-delay: 0.34s; }
+        .news-section:nth-child(4) { animation-delay: 0.46s; }
+        .news-section:nth-child(5) { animation-delay: 0.58s; }
+
+        @keyframes sectionReveal {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .section-header .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            border-radius: 100px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+        }
+
+        .section-header .section-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* category accent colors */
+        .sec-tech   .pill { background: rgba(56,189,248,0.12);  border-color: rgba(56,189,248,0.3);  color: var(--accent-tech); }
+        .sec-sports .pill { background: rgba(74,222,128,0.12);  border-color: rgba(74,222,128,0.3);  color: var(--accent-sports); }
+        .sec-biz    .pill { background: rgba(245,158,11,0.12);  border-color: rgba(245,158,11,0.3);  color: var(--accent-biz); }
+        .sec-econ   .pill { background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.3); color: var(--accent-econ); }
+        .sec-war    .pill { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.3); color: var(--accent-war); }
+
+        .sec-tech   .section-label::after { background: var(--accent-tech); }
+        .sec-sports .section-label::after { background: var(--accent-sports); }
+        .sec-biz    .section-label::after { background: var(--accent-biz); }
+        .sec-econ   .section-label::after { background: var(--accent-econ); }
+        .sec-war    .section-label::after { background: var(--accent-war); }
+
+        /* ── CARD GRID ── */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* ── NEWS CARD ── */
+        .news-card {
+            position: relative;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: transform 0.32s ease, box-shadow 0.32s ease, border-color 0.32s ease;
+            cursor: pointer;
+        }
+
+        /* per-section top-border glow on hover */
+        .sec-tech   .news-card:hover { border-color: rgba(56,189,248,0.45);  box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 0 0 1px rgba(56,189,248,0.2),  inset 0 1px 0 rgba(56,189,248,0.15); }
+        .sec-sports .news-card:hover { border-color: rgba(74,222,128,0.45);  box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 0 0 1px rgba(74,222,128,0.2),  inset 0 1px 0 rgba(74,222,128,0.15); }
+        .sec-biz    .news-card:hover { border-color: rgba(245,158,11,0.45);  box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 0 0 1px rgba(245,158,11,0.2),  inset 0 1px 0 rgba(245,158,11,0.15); }
+        .sec-econ   .news-card:hover { border-color: rgba(167,139,250,0.45); box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 0 0 1px rgba(167,139,250,0.2), inset 0 1px 0 rgba(167,139,250,0.15); }
+        .sec-war    .news-card:hover { border-color: rgba(248,113,113,0.45); box-shadow: 0 20px 50px rgba(0,0,0,0.45), 0 0 0 1px rgba(248,113,113,0.2), inset 0 1px 0 rgba(248,113,113,0.15); }
+
+        .news-card:hover { transform: translateY(-6px) scale(1.01); }
+
+        /* ── IMAGE WRAPPER — fixed height, cover ── */
+        .card-img-wrap {
+            width: 100%;
+            height: var(--img-h);
+            overflow: hidden;
+            position: relative;
+            background: rgba(255,255,255,0.04);
+        }
+
+        /* no overlay — keep images vivid */
+        .card-img-wrap::after { display: none; }
+
+        .card-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            display: block;
+            transition: transform 0.5s ease, filter 0.5s ease;
+            filter: brightness(1.08) saturate(1.1);
+        }
+
+        .news-card:hover .card-img-wrap img {
+            transform: scale(1.07);
+            filter: brightness(1.12) saturate(1.15);
+        }
+
+        /* placeholder when no image */
+        .card-img-placeholder {
+            width: 100%;
+            height: var(--img-h);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            opacity: 0.15;
+            background: rgba(255,255,255,0.02);
+        }
+
+        /* ── CARD BODY ── */
+        .card-body {
+            padding: 20px 22px 22px;
+        }
+
+        .card-title a {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.38;
+            color: var(--text);
+            text-decoration: none;
+            display: block;
+            transition: color 0.2s;
+        }
+
+        .sec-tech   .card-title a:hover { color: var(--accent-tech); }
+        .sec-sports .card-title a:hover { color: var(--accent-sports); }
+        .sec-biz    .card-title a:hover { color: var(--accent-biz); }
+        .sec-econ   .card-title a:hover { color: var(--accent-econ); }
+        .sec-war    .card-title a:hover { color: var(--accent-war); }
+
+        .card-snippet {
+            margin-top: 10px;
+            font-size: 0.83rem;
+            line-height: 1.6;
+            color: var(--muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-source {
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-source::before {
+            content: '';
+            display: inline-block;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+        }
+
+        .sec-tech   .card-source::before { background: var(--accent-tech); }
+        .sec-sports .card-source::before { background: var(--accent-sports); }
+        .sec-biz    .card-source::before { background: var(--accent-biz); }
+        .sec-econ   .card-source::before { background: var(--accent-econ); }
+        .sec-war    .card-source::before { background: var(--accent-war); }
+
+        .read-btn {
+            font-size: 0.72rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            text-decoration: none;
+            padding: 5px 12px;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            transition: all 0.25s;
+        }
+
+        .sec-tech   .read-btn:hover { color: var(--accent-tech);   border-color: var(--accent-tech);   background: rgba(56,189,248,0.08); }
+        .sec-sports .read-btn:hover { color: var(--accent-sports); border-color: var(--accent-sports); background: rgba(74,222,128,0.08); }
+        .sec-biz    .read-btn:hover { color: var(--accent-biz);    border-color: var(--accent-biz);    background: rgba(245,158,11,0.08); }
+        .sec-econ   .read-btn:hover { color: var(--accent-econ);   border-color: var(--accent-econ);   background: rgba(167,139,250,0.08); }
+        .sec-war    .read-btn:hover { color: var(--accent-war);    border-color: var(--accent-war);    background: rgba(248,113,113,0.08); }
+
+        /* ── DIVIDER ── */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border) 30%, var(--border) 70%, transparent);
+            margin-bottom: 64px;
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .card-grid { grid-template-columns: 1fr; }
+            :root { --img-h: 180px; }
+        }
+
+        /* ── SHIMMER SKELETON (fallback while images load) ── */
+        @keyframes shimmer {
+            0%   { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+        /* shimmer only on unloaded img (no src yet) */
+        .card-img-wrap img:not([src]) {
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%);
+            background-size: 800px 100%;
+            animation: shimmer 1.4s infinite;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Dynamic background -->
+<div class="bg-canvas"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="wrapper">
+
+    <!-- ── HEADER ── -->
+    <header class="site-header">
+        <span class="eyebrow">Live · Updated daily</span>
+        <h1>The Daily Dispatch</h1>
+        <p class="subtitle">Curated intelligence across technology, sport, business &amp; beyond</p>
+        <div class="header-rule"></div>
+    </header>
+
+    <!-- ══════════════ TECHNOLOGY ══════════════ -->
+    <section class="news-section sec-tech">
+        <div class="section-header">
+            <span class="pill">💻 Tech</span>
+            <span class="section-label">Technology</span>
+        </div>
+        <div class="card-grid">
+            <div th:each="news : ${techNews}" class="news-card">
+                <div class="card-img-wrap" th:if="${news.thumbnail != null}">
+                    <img th:src="${news.thumbnail}" th:alt="${news.title}" loading="lazy" />
+                </div>
+                <div class="card-img-placeholder" th:if="${news.thumbnail == null}">💻</div>
+                <div class="card-body">
+                    <div class="card-title">
+                        <a th:href="${news.link}" target="_blank" rel="noopener" th:text="${news.title}"></a>
+                    </div>
+                    <p class="card-snippet" th:text="${news.snippet}"></p>
+                    <div class="card-footer">
+                        <span class="card-source" th:text="${news.source}"></span>
+                        <a th:href="${news.link}" target="_blank" rel="noopener" class="read-btn">Read →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="section-divider"></div>
+
+    <!-- ══════════════ SPORTS ══════════════ -->
+    <section class="news-section sec-sports">
+        <div class="section-header">
+            <span class="pill">⚽ Sports</span>
+            <span class="section-label">Sports</span>
+        </div>
+        <div class="card-grid">
+            <div th:each="news : ${sportsNews}" class="news-card">
+                <div class="card-img-wrap" th:if="${news.thumbnail != null}">
+                    <img th:src="${news.thumbnail}" th:alt="${news.title}" loading="lazy" />
+                </div>
+                <div class="card-img-placeholder" th:if="${news.thumbnail == null}">⚽</div>
+                <div class="card-body">
+                    <div class="card-title">
+                        <a th:href="${news.link}" target="_blank" rel="noopener" th:text="${news.title}"></a>
+                    </div>
+                    <p class="card-snippet" th:text="${news.snippet}"></p>
+                    <div class="card-footer">
+                        <span class="card-source" th:text="${news.source}"></span>
+                        <a th:href="${news.link}" target="_blank" rel="noopener" class="read-btn">Read →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="section-divider"></div>
+
+    <!-- ══════════════ BUSINESS ══════════════ -->
+    <section class="news-section sec-biz">
+        <div class="section-header">
+            <span class="pill">💼 Business</span>
+            <span class="section-label">Business</span>
+        </div>
+        <div class="card-grid">
+            <div th:each="news : ${businessNews}" class="news-card">
+                <div class="card-img-wrap" th:if="${news.thumbnail != null}">
+                    <img th:src="${news.thumbnail}" th:alt="${news.title}" loading="lazy" />
+                </div>
+                <div class="card-img-placeholder" th:if="${news.thumbnail == null}">💼</div>
+                <div class="card-body">
+                    <div class="card-title">
+                        <a th:href="${news.link}" target="_blank" rel="noopener" th:text="${news.title}"></a>
+                    </div>
+                    <p class="card-snippet" th:text="${news.snippet}"></p>
+                    <div class="card-footer">
+                        <span class="card-source" th:text="${news.source}"></span>
+                        <a th:href="${news.link}" target="_blank" rel="noopener" class="read-btn">Read →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="section-divider"></div>
+
+    <!-- ══════════════ ECONOMY ══════════════ -->
+    <section class="news-section sec-econ">
+        <div class="section-header">
+            <span class="pill">🌍 Economy</span>
+            <span class="section-label">Economy</span>
+        </div>
+        <div class="card-grid">
+            <div th:each="news : ${economyNews}" class="news-card">
+                <div class="card-img-wrap" th:if="${news.thumbnail != null}">
+                    <img th:src="${news.thumbnail}" th:alt="${news.title}" loading="lazy" />
+                </div>
+                <div class="card-img-placeholder" th:if="${news.thumbnail == null}">🌍</div>
+                <div class="card-body">
+                    <div class="card-title">
+                        <a th:href="${news.link}" target="_blank" rel="noopener" th:text="${news.title}"></a>
+                    </div>
+                    <p class="card-snippet" th:text="${news.snippet}"></p>
+                    <div class="card-footer">
+                        <span class="card-source" th:text="${news.source}"></span>
+                        <a th:href="${news.link}" target="_blank" rel="noopener" class="read-btn">Read →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="section-divider"></div>
+
+    <!-- ══════════════ WAR ══════════════ -->
+    <section class="news-section sec-war">
+        <div class="section-header">
+            <span class="pill">⚔️ Conflicts</span>
+            <span class="section-label">War &amp; Conflicts</span>
+        </div>
+        <div class="card-grid">
+            <div th:each="news : ${warNews}" class="news-card">
+                <div class="card-img-wrap" th:if="${news.thumbnail != null}">
+                    <img th:src="${news.thumbnail}" th:alt="${news.title}" loading="lazy" />
+                </div>
+                <div class="card-img-placeholder" th:if="${news.thumbnail == null}">⚔️</div>
+                <div class="card-body">
+                    <div class="card-title">
+                        <a th:href="${news.link}" target="_blank" rel="noopener" th:text="${news.title}"></a>
+                    </div>
+                    <p class="card-snippet" th:text="${news.snippet}"></p>
+                    <div class="card-footer">
+                        <span class="card-source" th:text="${news.source}"></span>
+                        <a th:href="${news.link}" target="_blank" rel="noopener" class="read-btn">Read →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div><!-- /wrapper -->
+
+<script>
+    /* ── Intersection Observer: reveal cards on scroll ── */
+    const cards = document.querySelectorAll('.news-card');
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach((e, i) => {
+            if (e.isIntersecting) {
+                e.target.style.transitionDelay = (i * 0.04) + 's';
+                e.target.classList.add('visible');
+                io.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.08 });
+    cards.forEach(c => {
+        c.style.opacity = '0';
+        c.style.transform = 'translateY(22px)';
+        c.style.transition = 'opacity 0.5s ease, transform 0.5s ease, box-shadow 0.32s ease, border-color 0.32s ease';
+        io.observe(c);
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.news-card.visible, .news-card').forEach(c => {
+            c.style.opacity = '';
+            c.style.transform = '';
+        });
+    });
+
+    /* Make card entirely clickable via its title link */
+    cards.forEach(card => {
+        card.addEventListener('click', e => {
+            if (e.target.tagName !== 'A') {
+                const link = card.querySelector('a[href]');
+                if (link) window.open(link.href, '_blank', 'noopener');
+            }
+        });
+    });
+
+    /* Subtle mouse-tracking tilt on cards */
+    cards.forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const r = card.getBoundingClientRect();
+            const x = ((e.clientX - r.left) / r.width  - 0.5) * 8;
+            const y = ((e.clientY - r.top)  / r.height - 0.5) * 8;
+            card.style.transform = `translateY(-6px) scale(1.01) perspective(600px) rotateY(${x}deg) rotateX(${-y}deg)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+</script>
+</body>
+</html>
