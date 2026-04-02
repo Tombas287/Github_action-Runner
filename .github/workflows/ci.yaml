@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 permissions:
   issues: write
-  contents: read
+  contents: write
   pull-requests: write
     
 jobs:
@@ -16,6 +16,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     # - name: Install Podman
     #   run: |
@@ -74,6 +76,8 @@ jobs:
 
     - name: Run script
       run: python script.py
+      env:
+        GITHUB_WORKSPACE: ${{ github.workspace }}
           
     # - name: Push Docker image
     #   run: docker push $DOCKER_IMAGE
