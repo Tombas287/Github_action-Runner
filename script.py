@@ -4,8 +4,13 @@ import os
 
 DOCKERFILE_PATH = "Dockerfile1"
 workspace = os.getenv("GITHUB_WORKSPACE", os.getcwd())
-LIB_FILE = os.getenv(os.path.join(workspace, "filtered_summary.txt"))
-DOCKERFILE_PATH = os.getenv(os.path.join(workspace, DOCKERFILE_PATH))
+
+LIB_FILE = os.path.join(workspace, "filtered_summary.txt")
+DOCKERFILE_PATH = os.path.join(workspace, "Dockerfile1")
+
+print(f"Workspace: {workspace}")
+print(f"Lib file path: {LIB_FILE}")
+print(f"Dockerfile path: {DOCKERFILE_PATH}")
 
 date_str = datetime.now().strftime("%Y%m%d")
 branch_name = f"feature/securityupdate-{date_str}"
